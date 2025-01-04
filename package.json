@@ -10,9 +10,13 @@
   "dependencies": {
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/swagger": "^1.2.0",
+    "@neondatabase/serverless": "^0.10.4",
+    "@prisma/adapter-neon": "^6.1.0",
     "@prisma/client": "^6.1.0",
+    "@types/ws": "^8.5.13",
     "elysia": "latest",
-    "wrangler": "^3.99.0"
+    "wrangler": "^3.99.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "bun-types": "latest",

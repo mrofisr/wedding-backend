@@ -10,6 +10,7 @@ interface Env {
   // Add your environment variables here
   DATABASE_URL: string;
   NODE_ENV: string;
+  PRISMA_DEBUG: string;
 }
 
 const app = new Elysia({ aot: false })
@@ -37,22 +38,25 @@ const app = new Elysia({ aot: false })
   .use(cors())
   .use(loggerMiddleware)
   .use(systemRoutes)
-  .use(wishesRoutes);
+  .use(wishesRoutes)
+  .onError(({ code, error }) => {
+    return new Response(error.toString())
+  })
 
 // Create handler for Cloudflare Workers
 const handler = {
   async fetch(
     request: Request,
-    env: Env,
+    env: Env & { DATABASE_URL: string; NODE_ENV: string; PRISMA_DEBUG: string },
     ctx: Context
   ): Promise<Response> {
     // Add startup logging for development
     if (env.NODE_ENV === 'development') {
       const startupMessage = `
-🎉 Wedding Wishes API is running!
-⚡️ Mode: ${env.NODE_ENV}
-⏰ Started at: ${new Date().toISOString()}
-👤 Made by: mrofisr
+        🎉 Wedding Wishes API is running!
+        ⚡️ Mode: ${env.NODE_ENV}
+        ⏰ Started at: ${new Date().toISOString()}
+        👤 Made by: mrofisr
       `;
       console.log(startupMessage);
     }
@@ -62,7 +66,8 @@ const handler = {
       app.derive(() => ({
         env: {
           DATABASE_URL: env.DATABASE_URL,
-          NODE_ENV: env.NODE_ENV
+          NODE_ENV: env.NODE_ENV,
+          PRISMA_DEBUG: env.PRISMA_DEBUG
         }
       }));
 
@@ -104,9 +109,9 @@ export default handler;
 // For development with Wrangler
 if (process.env.NODE_ENV === 'development') {
   console.log(`
-🎉 Wedding Wishes API is ready for development!
-📝 Use 'wrangler dev' to start the development server
-⏰ Timestamp: ${new Date().toISOString()}
-👤 Developer: mrofisr
+    🎉 Wedding Wishes API is ready for development!
+    📝 Use 'wrangler dev' to start the development server
+    ⏰ Timestamp: ${new Date().toISOString()}
+    👤 Developer: mrofisr
   `);
 }
