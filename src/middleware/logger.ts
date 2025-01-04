@@ -1,6 +1,6 @@
 // src/middleware/logger.ts
 import { Elysia } from 'elysia';
-import Logger from '../utils/logger';
+import Logger from '@/utils/logger';
 
 // Define types for the store and error
 type Store = {
