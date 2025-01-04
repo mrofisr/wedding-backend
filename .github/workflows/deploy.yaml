@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Cloudflare Workerm ( Wrangler )
 
 on:
   workflow_dispatch:
