@@ -12,14 +12,12 @@ DATABASE_URL = ""
 
 [env.development]
 name = "wedding-backend-dev"
-vars = { 
-    NODE_ENV = "development",
-    DATABASE_URL = ""
-}
+[env.development.vars]
+NODE_ENV = "development"
+DATABASE_URL = ""
 
 [env.production]
 name = "wedding-backend"
-vars = { 
-    NODE_ENV = "production",
-    DATABASE_URL = ""
-}
+[env.production.vars]
+NODE_ENV = "production"
+DATABASE_URL = ""
