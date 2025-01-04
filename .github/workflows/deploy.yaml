@@ -18,5 +18,4 @@ jobs:
           environment: production
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          BASIC_AUTH: ${{ secrets.BASIC_AUTH }}
           NODE_ENV: ${{ secrets.NODE_ENV }}

@@ -1,0 +1,25 @@
+name = "wedding-backend"
+compatibility_flags = [ "nodejs_compat" ]
+compatibility_date = "2024-09-23"
+main = "src/index.ts"
+
+send_metrics = false
+minify = true
+
+[vars]
+NODE_ENV = "production"
+DATABASE_URL = "" 
+
+[env.development]
+name = "wedding-backend-dev"
+vars = { 
+    NODE_ENV = "development",
+    DATABASE_URL = ""
+}
+
+[env.production]
+name = "wedding-backend"
+vars = { 
+    NODE_ENV = "production",
+    DATABASE_URL = ""
+}

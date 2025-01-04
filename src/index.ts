@@ -1,12 +1,18 @@
 // src/index.ts
-import { Elysia } from "elysia";
+import { Context, Elysia } from "elysia";
 import { swagger } from '@elysiajs/swagger';
 import { cors } from '@elysiajs/cors';
 import { loggerMiddleware } from "@/middleware/logger";
 import { systemRoutes } from "@/routes/system";
 import { wishesRoutes } from "@/routes/wishes";
 
-const app = new Elysia()
+interface Env {
+  // Add your environment variables here
+  DATABASE_URL: string;
+  NODE_ENV: string;
+}
+
+const app = new Elysia({ aot: false })
   .use(swagger({
     documentation: {
       info: {
@@ -31,14 +37,76 @@ const app = new Elysia()
   .use(cors())
   .use(loggerMiddleware)
   .use(systemRoutes)
-  .use(wishesRoutes)
-  .listen(3000);
+  .use(wishesRoutes);
 
-console.log(`
-  🎉 Wedding Wishes API is running!
-  🔗 HTTP Server: http://${app.server?.hostname}:${app.server?.port}
-  📚 Documentation: http://${app.server?.hostname}:${app.server?.port}/swagger
-  ⏰ Started at: ${new Date().toISOString()}
-`);
+// Create handler for Cloudflare Workers
+const handler = {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: Context
+  ): Promise<Response> {
+    // Add startup logging for development
+    if (env.NODE_ENV === 'development') {
+      const startupMessage = `
+🎉 Wedding Wishes API is running!
+⚡️ Mode: ${env.NODE_ENV}
+⏰ Started at: ${new Date().toISOString()}
+👤 Made by: mrofisr
+      `;
+      console.log(startupMessage);
+    }
 
-export type App = typeof app;
+    try {
+      // Add environment variables to the context
+      app.derive(() => ({
+        env: {
+          DATABASE_URL: env.DATABASE_URL,
+          NODE_ENV: env.NODE_ENV
+        }
+      }));
+
+      // Handle the request
+      const response = await app.fetch(request);
+
+      // Add custom headers
+      response.headers.set('X-Powered-By', 'Elysia + Cloudflare Workers');
+      response.headers.set('X-Response-Time', Date.now().toString());
+      response.headers.set('X-Request-ID', crypto.randomUUID());
+
+      return response;
+    } catch (error) {
+      // Handle errors
+      console.error('Error processing request:', error);
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Internal Server Error',
+          timestamp: new Date().toISOString(),
+          requestId: request.headers.get('cf-ray') || crypto.randomUUID()
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Error-ID': crypto.randomUUID()
+          }
+        }
+      );
+    }
+  }
+};
+
+// Export the handler
+export default handler;
+
+// For development with Wrangler
+if (process.env.NODE_ENV === 'development') {
+  console.log(`
+🎉 Wedding Wishes API is ready for development!
+📝 Use 'wrangler dev' to start the development server
+⏰ Timestamp: ${new Date().toISOString()}
+👤 Developer: mrofisr
+  `);
+}

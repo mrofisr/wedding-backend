@@ -30,6 +30,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.dev.vars
 
 # vercel
 .vercel
@@ -41,3 +42,15 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
+
+# wrangler
+wrangler.toml
+.wrangler/
+
+# Worker
+.workers
+worker
+workers-site
+
+# Cloudflare
+.cloudflare
